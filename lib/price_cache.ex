@@ -1,7 +1,7 @@
 defmodule PriceCache do
 
   @name __MODULE__
-  @crypto_compare_apikey "e654d641178cfe2d09782fa5278adef8ec9192fc30330d4c906ef54af5d49a39"
+  @crypto_compare_apikey Application.get_env(:price_cache, :crypto_compare_apikey)
   @max_age 0
 
   def start_link() do

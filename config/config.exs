@@ -28,3 +28,10 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env()}.exs"
+
+# create a config.secret.exs file in this directory with the following contents,
+# substituting your api key for <YOUR_API_KEY>
+# use Mix.Config
+# config :price_cache,
+# crypto_compare_apikey: "<YOUR_API_KEY>"
+import_config "./config.secret.exs"
