@@ -29,14 +29,18 @@ defmodule PriceCache do
   end
 
   defp get_and_update(prices, ticker, _price_data,  _is_too_old = true) do
-    price = fetch_current_price(ticker)
-    prices = Map.put(prices, ticker, %{price: price, timestamp: System.system_time(:second)})
-    {price, prices}
+    return_price_and_prices(prices, ticker, fetch_current_price(ticker))
   end
 
   defp get_and_update(prices, _ticker, price_data, _is_too_old) do
     IO.puts("retrieving price from cache")
     {price_data.price, prices}
+  end
+
+  defp return_price_and_prices(prices, _ticker, {:error, _resp}), do: {:error, prices}
+  defp return_price_and_prices(prices, ticker, price) do
+    prices = Map.put(prices, ticker, %{price: price, timestamp: System.system_time(:second)})
+    {price, prices}
   end
 
   defp is_too_old?(price_data, max_age) do
@@ -47,17 +51,17 @@ defmodule PriceCache do
   defp fetch_current_price({currency, denomination}) do
     IO.puts("fetching price for #{currency}/#{denomination}")
     url = 'https://min-api.cryptocompare.com/data/price?fsym=#{currency}&tsyms=#{denomination}&api_key=#{@crypto_compare_apikey}'
-    %{^denomination => price} = read_crypto_compare_response(:httpc.request(:get, {url, []}, [], []))
+    read_crypto_compare_response(denomination, :httpc.request(:get, {url, []}, [], []))
+  end
+
+  defp read_crypto_compare_response(denomination, {:ok, {{'HTTP/1.1', 200, 'OK'}, _headers, body}}) do
+    {:ok, map} = Jason.decode(body)
+    %{^denomination => price} = map
     price
   end
 
-  defp read_crypto_compare_response({:ok, {{'HTTP/1.1', 200, 'OK'}, _headers, body}}) do
-    {:ok, map} = Jason.decode(body)
-    map
-  end
-
-  defp read_crypto_compare_response({:error, resp}) do
+  defp read_crypto_compare_response(_denomination, resp) do
     IO.puts(inspect(resp))
-    nil
+    {:error, resp}
   end
 end

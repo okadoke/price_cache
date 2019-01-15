@@ -3,6 +3,6 @@ defmodule PriceCacheTest do
   doctest PriceCache
 
   test "greets the world" do
-    assert PriceCache.hello() == :world
+    assert PriceCache.get_price("BTC/USD")
   end
 end
