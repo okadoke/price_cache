@@ -2,7 +2,7 @@ defmodule PriceCache do
 
   @name __MODULE__
   @crypto_compare_apikey Application.get_env(:price_cache, :crypto_compare_apikey)
-  @max_age 0
+  @max_age 10
 
   def start_link() do
     # First, we should start `inets` application.
